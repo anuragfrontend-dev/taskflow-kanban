@@ -8,3 +8,7 @@ const api=axios.create({
 export function fetchData(){
   return api.get('/tasks')
 }
+
+export function addData(newData){
+  return api.post('/tasks',newData);
+}
