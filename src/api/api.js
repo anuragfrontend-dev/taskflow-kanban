@@ -12,3 +12,7 @@ export function fetchData(){
 export function addData(newData){
   return api.post('/tasks',newData);
 }
+
+export function deleteData(id){
+  return api.delete(`/tasks/${id}`);
+}

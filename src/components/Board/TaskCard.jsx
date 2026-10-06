@@ -3,8 +3,9 @@ import { BsThreeDotsVertical } from "react-icons/bs";
 import { CircleCheck } from 'lucide-react';
 import { useState } from "react";
 
-export function TaskCard({ taskItem }) {
-  const { priority, title, done, avatar, due } = taskItem;
+
+export function TaskCard({ taskItem, onDelete }) {
+  const { priority, title, done, avatar, due,id } = taskItem;
   const [showMenu, setShowMenu] = useState(false);
 
   const badgeColor = {
@@ -27,7 +28,11 @@ export function TaskCard({ taskItem }) {
         <div className=" absolute right-2 top-10 bg-white z-50 
         shadow-xl border rounded-lg py-1 flex flex-col">
           <button className= "text-left px-2 py-1 text-sm hover:bg-gray-100">✏️Edit</button>
-          <button className="text-left px-2 py-1 text-sm hover:bg-gray-100 text-red-600">🗑️Delete</button>
+          <button 
+            className="text-left px-2 py-1 text-sm hover:bg-gray-100 text-red-600" 
+            onClick={()=>onDelete(id)}>
+            🗑️Delete
+          </button>
         </div>
       )}
       <h1 className="font-bold mt-3">{title}</h1>
