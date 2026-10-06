@@ -26,7 +26,7 @@ export function Board() {
   const done=tasks.filter((task)=>(task.status==='done'));
   return (
    <div>
-    <Header />
+    <Header setTasks={setTasks} />
     <div className="pt-32 md:pt-15 bg-gray-200 w-full min-h-screen px-6 md:px-12 py-4">
       <BoardHeader />
       <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-5'>
