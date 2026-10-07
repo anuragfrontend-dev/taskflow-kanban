@@ -9,6 +9,7 @@ import { CiSearch } from "react-icons/ci";
 import { HiMenu, HiX } from "react-icons/hi";
 import { addData } from "../../api/api";
 import { format } from "date-fns";
+import { compressImage } from "../../utils/compressImage";
 
 
 export function Header({ setTasks }){
@@ -48,23 +49,6 @@ export function Header({ setTasks }){
       console.log('Api error',err);
     }
   }
-
-  const compressImage=(file,maxW=200,quality=0.7)=>
-    new Promise((resolve, reject)=>{
-      const img = new Image();
-      const url = URL.createObjectURL(file);
-      img.onload=()=>{
-        const scale = Math.min(1,maxW/img.width);
-        const canvas = document.createElement('canvas');
-        canvas.width = img.width * scale;
-        canvas.height = img.height * scale;
-        canvas.getContext("2d").drawImage(img, 0, 0, canvas.width, canvas.height);
-        URL.revokeObjectURL(url);
-        resolve(canvas.toDataURL('image/jpeg',quality));
-      }
-      img.onerror=reject;
-      img.src=url;
-    })
 
   const handleAvatar= async(e)=>{
     const file=e.target.files[0];
