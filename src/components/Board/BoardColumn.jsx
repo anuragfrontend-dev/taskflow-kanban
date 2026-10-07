@@ -1,6 +1,6 @@
 import { TaskCard } from "./TaskCard"
 
-export function BoardColumn({title,count,tasks,onDelete}){
+export function BoardColumn({title,count,tasks,onDelete,onEdit}){
   
   return(
     <div className="bg-gray-300 rounded-xl p-2 md:p-4 w-full">
@@ -15,6 +15,7 @@ export function BoardColumn({title,count,tasks,onDelete}){
               key={taskItem.id}
               taskItem={taskItem}
               onDelete={onDelete}
+              onEdit={onEdit}
             />
           ))}
         </div>

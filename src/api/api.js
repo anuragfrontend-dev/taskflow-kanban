@@ -16,3 +16,7 @@ export function addData(newData){
 export function deleteData(id){
   return api.delete(`/tasks/${id}`);
 }
+
+export function editData(id,newEditData){
+  return api.put(`/tasks/${id}`,newEditData);
+}
