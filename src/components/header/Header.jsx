@@ -8,7 +8,6 @@ import { IoIosNotificationsOutline } from "react-icons/io";
 import { CiSearch } from "react-icons/ci";
 import { HiMenu, HiX } from "react-icons/hi";
 import { addData } from "../../api/api";
-import { format } from "date-fns";
 import { compressImage } from "../../utils/compressImage";
 
 
@@ -27,7 +26,7 @@ export function Header({ setTasks }){
     const newTask={
       title:title,
       priority:priority,
-      due:date? format(new Date(date),'MMM dd'):'',
+      due:date,
       avatar:avatar,
       status:'todo'
     }
@@ -114,7 +113,7 @@ export function Header({ setTasks }){
               onChange={(e)=>setPriority(e.target.value)} >
               <option value="HIGH">HIGH</option>
               <option value="MEDIUM">MEDIUM</option>
-              <option value="EASY">EASY</option>
+              <option value="LOW">LOW</option>
             </select>
             </div>
             <div className="flex items-center gap-2 mt-2">
