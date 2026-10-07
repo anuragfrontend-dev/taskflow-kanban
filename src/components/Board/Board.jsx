@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react'
 import { Header } from '../header/Header'
 import { BoardColumn } from './BoardColumn'
 import { BoardHeader } from './BoardHeader'
-import { fetchData,deleteData } from '../../api/api'
+import { fetchData, deleteData, editData  } from '../../api/api'
+
 
 export function Board() {
   const [tasks,setTasks]=useState([]);
@@ -32,6 +33,19 @@ export function Board() {
     }
   }
 
+  const handleEdit=async ( id,newEditData ) =>{
+    try{
+      const res = await editData(id,newEditData);
+      if(res.status===200){
+        const result = tasks.map((currTask)=>
+          id===currTask.id? {...currTask,...newEditData}:currTask)
+        setTasks(result)
+    }
+    }catch(err){
+      console.log('Edit failed',err);
+    }
+  }
+
   const todo=tasks.filter((task)=>(task.status==='todo'));
   const inProgress=tasks.filter((task)=>(task.status==='inprogress'));
   const done=tasks.filter((task)=>(task.status==='done'));
@@ -41,9 +55,9 @@ export function Board() {
     <div className="pt-32 md:pt-15 bg-gray-200 w-full min-h-screen px-6 md:px-12 py-4">
       <BoardHeader />
       <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-5'>
-        <BoardColumn title='To Do' count={todo.length}  tasks={todo} onDelete={handleDelete} />
-        <BoardColumn title='In Progress' count={inProgress.length}  tasks={inProgress} onDelete={handleDelete} />
-        <BoardColumn title='Done' count={done.length} tasks={done} onDelete={handleDelete} />
+        <BoardColumn title='To Do' count={todo.length}  tasks={todo} onDelete={handleDelete} onEdit={handleEdit} />
+        <BoardColumn title='In Progress' count={inProgress.length}  tasks={inProgress} onDelete={handleDelete} onEdit={handleEdit} />
+        <BoardColumn title='Done' count={done.length} tasks={done} onDelete={handleDelete} onEdit={handleEdit} />
       </div>
     </div>
    </div>
