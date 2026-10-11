@@ -6,8 +6,8 @@ import { format } from "date-fns";
 import { compressImage } from "../../utils/compressImage";
 
 
-export function TaskCard({ taskItem, onDelete,onEdit }) {
-  const { priority, title, done, avatar, due, id } = taskItem;
+export function TaskCard({ taskItem, onDelete,onEdit, setActiveCard}) {
+  const { priority, title, done, avatar, due, id,status } = taskItem;
   const [showMenu, setShowMenu] = useState(false);
   const [editTitle, setEditTitle] = useState('');
   const [editId, setEditId] = useState(null);
@@ -16,6 +16,7 @@ export function TaskCard({ taskItem, onDelete,onEdit }) {
   const [editDone, setEditDone] = useState();
   const [editDue, setEditDue] = useState('');
   const fileInputRef = useRef(null);
+  const [isDragging,setIsDragging]=useState(false);
 
   const handleEditSubmit=(e,id)=>{
     e.preventDefault();
@@ -59,6 +60,23 @@ export function TaskCard({ taskItem, onDelete,onEdit }) {
     }catch{
       alert('Image is not loaded, please try again')
     }
+  }
+  
+  const handleDragStart=(e,id)=>{
+    e.dataTransfer.effectAllowed = 'move';
+    e.dataTransfer.setData('text/plain',taskItem.id);
+
+    if(e.target){
+      setTimeout(()=>{
+        setIsDragging(true);
+      },0)
+    }
+    setActiveCard(id);
+  }
+
+  const handleDragEnd=(e)=>{
+    e.target.style.opacity = '1';
+    setIsDragging(false);
   }
 
   const badgeColor = {
@@ -159,7 +177,13 @@ export function TaskCard({ taskItem, onDelete,onEdit }) {
             </button>
           </div>
         </form>) : (
-          <div className="bg-white rounded-lg p-4 shadow-sm flex flex-col items-start hover:shadow-lg relative">
+          <div className={`bg-white rounded-lg p-4 shadow-sm flex flex-col items-start 
+            hover:shadow-lg relative cursor-move 
+            ${isDragging ? 'opacity-50': 'opacity-100'}`} 
+          draggable
+          onDragStart={(e)=>handleDragStart(e,id)}
+          onDragEnd={handleDragEnd}
+          >
             <div className="flex justify-between w-full">
               <span
                 className={`py-1 px-2 rounded-m text-xs font-bold rounded ${badgeColor[priority]}`}>
@@ -193,7 +217,7 @@ export function TaskCard({ taskItem, onDelete,onEdit }) {
             <h1 className="font-bold mt-3">{title}</h1>
             <div className="flex justify-between items-center w-full">
               <div className="flex mt-3.5 gap-2 items-center">
-                {done ?
+                {status === 'done' ?
                   (<div className="flex items-center gap-2">
                     <CircleCheck fill="green" color="white" className="h-12" />
                     <span className="text-green-700 font-medium text-[16px]">Completed {done ? format(new Date(done), 'MMM d') : ''}</span>
