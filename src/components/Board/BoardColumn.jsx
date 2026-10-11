@@ -1,6 +1,8 @@
 import { TaskCard } from "./TaskCard"
+import { DropArea } from "./DropArea"
+import React from 'react'
 
-export function BoardColumn({title,count,tasks,onDelete,onEdit}){
+export function BoardColumn({title,count,tasks,onDelete,onEdit,status,setActiveCard,onDrop,isDragging}){
   
   return(
     <div className="bg-gray-300 rounded-xl p-2 md:p-4 w-full">
@@ -10,14 +12,26 @@ export function BoardColumn({title,count,tasks,onDelete,onEdit}){
         >{count}</span>
       </div>
       <div className="flex flex-col gap-4">
-          {tasks.map((taskItem)=>(
-            <TaskCard  
-              key={taskItem.id}
-              taskItem={taskItem}
-              onDelete={onDelete}
-              onEdit={onEdit}
-            />
-          ))}
+        {tasks.length>0 ?(
+          <>
+            <DropArea onDrop={()=>onDrop(status,0)} />
+            {tasks.map((taskItem,index)=>(
+              <React.Fragment key={taskItem.id}>
+              <TaskCard  
+                taskItem={taskItem}
+                onDelete={onDelete}
+                onEdit={onEdit}
+                setActiveCard={setActiveCard}
+              />
+              <DropArea onDrop={()=> onDrop(status,index+1)} />
+              </React.Fragment>
+            ))}
+          </>
+            ):(
+              <div className="flex-1">
+                <DropArea onDrop={()=>onDrop(status,0)} isEmpty={true} isDragging={isDragging} />
+              </div>
+              )}
         </div>
     </div>
   )
