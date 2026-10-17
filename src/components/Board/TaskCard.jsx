@@ -4,9 +4,11 @@ import { CircleCheck } from 'lucide-react';
 import { useState, useRef } from "react";
 import { format } from "date-fns";
 import { compressImage } from "../../utils/compressImage";
+import { useSortable } from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
 
 
-export function TaskCard({ taskItem, onDelete,onEdit, setActiveCard}) {
+export function TaskCard({ taskItem, onDelete,onEdit}) {
   const { priority, title, done, avatar, due, id,status } = taskItem;
   const [showMenu, setShowMenu] = useState(false);
   const [editTitle, setEditTitle] = useState('');
@@ -16,7 +18,13 @@ export function TaskCard({ taskItem, onDelete,onEdit, setActiveCard}) {
   const [editDone, setEditDone] = useState();
   const [editDue, setEditDue] = useState('');
   const fileInputRef = useRef(null);
-  const [isDragging,setIsDragging]=useState(false);
+  const { attributes, listeners, setNodeRef, transform,transition,isDragging }= useSortable({id:taskItem.id});
+
+  const style = {
+    transform: CSS.Translate.toString(transform),
+    transition,
+    opacity: isDragging ? 0.5:1
+  };
 
   const handleEditSubmit=(e,id)=>{
     e.preventDefault();
@@ -62,23 +70,6 @@ export function TaskCard({ taskItem, onDelete,onEdit, setActiveCard}) {
     }
   }
   
-  const handleDragStart=(e,id)=>{
-    e.dataTransfer.effectAllowed = 'move';
-    e.dataTransfer.setData('text/plain',taskItem.id);
-
-    if(e.target){
-      setTimeout(()=>{
-        setIsDragging(true);
-      },0)
-    }
-    setActiveCard(id);
-  }
-
-  const handleDragEnd=(e)=>{
-    e.target.style.opacity = '1';
-    setIsDragging(false);
-  }
-
   const badgeColor = {
     HIGH: "bg-red-500 text-white",
     MEDIUM: "bg-amber-300 text-black",
@@ -177,13 +168,8 @@ export function TaskCard({ taskItem, onDelete,onEdit, setActiveCard}) {
             </button>
           </div>
         </form>) : (
-          <div className={`bg-white rounded-lg p-4 shadow-sm flex flex-col items-start 
-            hover:shadow-lg relative cursor-move 
-            ${isDragging ? 'opacity-50': 'opacity-100'}`} 
-          draggable
-          onDragStart={(e)=>handleDragStart(e,id)}
-          onDragEnd={handleDragEnd}
-          >
+          <div className="bg-white rounded-lg p-4 shadow-sm flex flex-col items-start 
+            hover:shadow-lg relative cursor-grab " ref={setNodeRef} style={{...style,touchAction:'none'}} {...attributes} {...listeners} >
             <div className="flex justify-between w-full">
               <span
                 className={`py-1 px-2 rounded-m text-xs font-bold rounded ${badgeColor[priority]}`}>
