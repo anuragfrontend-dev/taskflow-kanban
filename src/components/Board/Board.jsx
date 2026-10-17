@@ -3,11 +3,11 @@ import { Header } from '../header/Header'
 import { BoardColumn } from './BoardColumn'
 import { BoardHeader } from './BoardHeader'
 import { fetchData, deleteData, editData  } from '../../api/api'
-
+import { DndContext, closestCenter, PointerSensor,TouchSensor, useSensor, useSensors } from '@dnd-kit/core'
+import { arrayMove } from '@dnd-kit/sortable'
 
 export function Board() {
   const [tasks,setTasks]=useState([]);
-  const [activeCard,setActiveCard]= useState(null);
 
   const getData=async ()=>{
     try{
@@ -47,57 +47,74 @@ export function Board() {
     }
   }
 
-  const onDrop=async(newStatus,position)=>{
-    if (!activeCard) return;
+  const sensors = useSensors(
+    useSensor(PointerSensor, { activationConstraint: { distance:5 }}),
+    useSensor(TouchSensor,{
+      activationConstraint: {
+        delay:100,
+        tolerance:6
+      }
+    })
+  );
 
-    const taskToMove = tasks.find(t => t.id === activeCard);
-    if (!taskToMove) return;
+  const handleDragEnd=async(event)=>{
+    const {active,over}=event;
+    if(!over) return;
 
-    console.log(`${activeCard} -> ${newStatus} at ${position}`);
+    const activeId=active.id;
+    const overId =over.id;
+    if(activeId===overId) return;
+    
+    const activeTask = tasks.find(t=>t.id === activeId);
+    const overTask = tasks.find(t=> t.id === overId);
 
-    const remainingTasks = tasks.filter(t => t.id!== activeCard);
+    if(!activeTask) return;
 
-    const oldColumnTasks = tasks.filter(t => t.status === taskToMove.status);
-
-    const oldIndex = oldColumnTasks.findIndex(t => t.id === activeCard);
-
-    let newPosition = position;
-    if (taskToMove.status === newStatus && oldIndex!== -1 && oldIndex < position) {
-      newPosition = position - 1;
+    if(overTask && activeTask.status === overTask.status){
+      const oldIndex = tasks.findIndex(t=>t.id === activeId);
+      const newIndex = tasks.findIndex(t=>t.id === overId);
+      setTasks((prevTasks)=>arrayMove(prevTasks,oldIndex,newIndex));
+      return;
     }
 
-    let updatedTask;
-    if (newStatus === 'done') {
-      const { due,...rest } = taskToMove;
-      updatedTask = {
-       ...rest,
-        status: 'done',
-        done: new Date().toISOString().split('T')[0]
-      };
-    } else {
-      const { done,...rest } = taskToMove;
-      updatedTask = {
-       ...rest,
-        status: newStatus,
-        due: rest.due || new Date().toISOString().split('T')[0] 
-      };
+    let newStatus = overId;
+
+    const validStatus= ['todo','inprogress','done'];
+
+    if(!validStatus.includes(overId)){
+      if(overTask) newStatus = overTask.status;
     }
+    
+    if(activeTask.status !==newStatus){
+      let updatedTasks;
 
-    const targetColumnTasks = remainingTasks.filter(t => t.status === newStatus);
-    const otherColumnsTasks = remainingTasks.filter(t => t.status!== newStatus);
+      if(newStatus === 'done'){
+        updatedTasks = tasks.map(t=>t.id===activeId? 
+          {...t,done:new Date().toISOString().split('T')[0] ,status:newStatus}:t);
+      }
+      else if(newStatus === 'inprogress'){
+        updatedTasks = tasks.map(t=>t.id===activeId? 
+          {...t,due:new Date().toISOString().split('T')[0] ,status:newStatus}:t);
+      }
+      else{
+        updatedTasks = tasks.map(t=>t.id===activeId?
+          {...t,status:newStatus}:t
+        )
+      }
 
-    targetColumnTasks.splice(newPosition, 0, updatedTask);
-
-    setTasks([...otherColumnsTasks, ...targetColumnTasks]);
-    setActiveCard(null);
-
-    try{
-      const res=await editData(activeCard,updatedTask);
-    } catch(err){
-      console.log('Updated API failed',err);
-      getData();
+      setTasks(updatedTasks);
+      try{
+        const payload = updatedTasks.find((t)=>(t.id===activeId));
+        await editData(activeId,payload);
+      } catch (err){
+        console.log('status update failed',err);
+        getData();
     }
   }
+
+}
+
+ 
 
   const todo=tasks.filter((task)=>(task.status==='todo'));
   const inProgress=tasks.filter((task)=>(task.status==='inprogress'));
@@ -107,41 +124,34 @@ export function Board() {
     <Header setTasks={setTasks} />
     <div className="pt-32 md:pt-15 bg-gray-200 w-full min-h-screen px-6 md:px-12 py-4">
       <BoardHeader />
-      <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-5'>
-        <BoardColumn 
-          title='To Do' 
-          count={todo.length}  
-          tasks={todo} 
-          onDelete={handleDelete} 
-          onEdit={handleEdit} 
-          status='todo'
-          setActiveCard={setActiveCard}
-          onDrop={onDrop}
-          isDragging={!!activeCard}
-        />
-        <BoardColumn 
-          title='In Progress' 
-          count={inProgress.length}  
-          tasks={inProgress} 
-          onDelete={handleDelete} 
-          onEdit={handleEdit}
-          status='inprogress'
-          setActiveCard={setActiveCard} 
-          onDrop={onDrop}
-          isDragging={!!activeCard}
-        />
-        <BoardColumn 
-          title='Done' 
-          count={done.length} 
-          tasks={done} 
-          onDelete={handleDelete} 
-          onEdit={handleEdit}
-          status='done'
-          setActiveCard={setActiveCard} 
-          onDrop={onDrop}
-          isDragging={!!activeCard}
-        />
-      </div>
+        <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+          <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-5'>
+            <BoardColumn 
+              title='To Do' 
+              count={todo.length}  
+              tasks={todo} 
+              onDelete={handleDelete} 
+              onEdit={handleEdit} 
+              id='todo'
+            />
+            <BoardColumn 
+              title='In Progress' 
+              count={inProgress.length}  
+              tasks={inProgress} 
+              onDelete={handleDelete} 
+              onEdit={handleEdit}
+              id='inprogress'
+            />
+            <BoardColumn 
+              title='Done' 
+              count={done.length} 
+              tasks={done} 
+              onDelete={handleDelete} 
+              onEdit={handleEdit}
+              id='done'
+            />
+          </div>
+        </DndContext>
     </div>
    </div>
   )
