@@ -1,8 +1,11 @@
 import { TaskCard } from "./TaskCard"
 import { SortableContext, useSortable } from "@dnd-kit/sortable"
 
-export function BoardColumn({title,count,tasks,onDelete,onEdit,id}){
+export function BoardColumn({title,count,tasks,onDelete,onEdit,id,search}){
   const { setNodeRef } = useSortable({ id:id });
+
+  const searchTask = tasks.filter((currTask)=>
+    (currTask?.title?.toLowerCase().includes(search?.toLowerCase()||'')));
 
   return(
     <div className="bg-gray-300 rounded-xl p-2 md:p-4 w-full" ref={setNodeRef}>
@@ -13,7 +16,7 @@ export function BoardColumn({title,count,tasks,onDelete,onEdit,id}){
       </div>
       <SortableContext items={tasks.map(t=>t.id)}>
         <div className="flex flex-col gap-4">
-          {tasks.map((taskItem)=>(
+          {searchTask.map((taskItem)=>(
             <TaskCard  
               key={taskItem.id}
               taskItem={taskItem}

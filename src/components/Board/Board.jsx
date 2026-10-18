@@ -8,6 +8,7 @@ import { arrayMove } from '@dnd-kit/sortable'
 
 export function Board() {
   const [tasks,setTasks]=useState([]);
+  const [search,setSearch]=useState('');
 
   const getData=async ()=>{
     try{
@@ -121,7 +122,11 @@ export function Board() {
   const done=tasks.filter((task)=>(task.status==='done'));
   return (
    <div>
-    <Header setTasks={setTasks} />
+    <Header 
+      setTasks={setTasks}
+      search={search}
+      setSearch={setSearch}  
+    />
     <div className="pt-32 md:pt-15 bg-gray-200 w-full min-h-screen px-6 md:px-12 py-4">
       <BoardHeader />
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
@@ -133,6 +138,7 @@ export function Board() {
               onDelete={handleDelete} 
               onEdit={handleEdit} 
               id='todo'
+              search={search}
             />
             <BoardColumn 
               title='In Progress' 
@@ -141,6 +147,7 @@ export function Board() {
               onDelete={handleDelete} 
               onEdit={handleEdit}
               id='inprogress'
+              search={search}
             />
             <BoardColumn 
               title='Done' 
@@ -149,6 +156,7 @@ export function Board() {
               onDelete={handleDelete} 
               onEdit={handleEdit}
               id='done'
+              search={search}
             />
           </div>
         </DndContext>
