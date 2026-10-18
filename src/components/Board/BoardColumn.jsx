@@ -1,11 +1,15 @@
 import { TaskCard } from "./TaskCard"
 import { SortableContext, useSortable } from "@dnd-kit/sortable"
 
-export function BoardColumn({title,count,tasks,onDelete,onEdit,id,search}){
+export function BoardColumn({title,count,tasks,onDelete,onEdit,id,search,priority}){
   const { setNodeRef } = useSortable({ id:id });
 
-  const searchTask = tasks.filter((currTask)=>
-    (currTask?.title?.toLowerCase().includes(search?.toLowerCase()||'')));
+  const searchTask = tasks.filter((currTask)=>{
+    const matchTask= !search || currTask?.title?.toLowerCase().includes(search?.toLowerCase()||'');
+    const isAll = !priority || priority==='ALL';
+    const matchPriority= isAll || currTask?.priority === priority;
+    return matchTask && matchPriority;
+  })
 
   return(
     <div className="bg-gray-300 rounded-xl p-2 md:p-4 w-full" ref={setNodeRef}>
