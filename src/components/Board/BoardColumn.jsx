@@ -1,7 +1,7 @@
 import { TaskCard } from "./TaskCard"
 import { SortableContext, useSortable } from "@dnd-kit/sortable"
 
-export function BoardColumn({title,count,tasks,onDelete,onEdit,id,search,priority}){
+export function BoardColumn({title,count,tasks,onDelete,onEdit,id,search,priority,sortBy}){
   const { setNodeRef } = useSortable({ id:id });
 
   const searchTask = tasks.filter((currTask)=>{
@@ -9,6 +9,18 @@ export function BoardColumn({title,count,tasks,onDelete,onEdit,id,search,priorit
     const isAll = !priority || priority==='ALL';
     const matchPriority= isAll || currTask?.priority === priority;
     return matchTask && matchPriority;
+  })
+  
+  const finalTasks=[...searchTask].sort((a,b)=>{
+    if (sortBy === "ALL") return 0;
+
+    const getDate = (task) => new Date(task.status === "done" ? task.done : task.due);
+    const dateA= getDate(a);
+    const dateB= getDate(b);
+
+    if (sortBy === 'NEWEST') return dateB - dateA; 
+    if (sortBy === 'OLDEST') return dateA - dateB;
+    return 0;
   })
 
   return(
@@ -18,9 +30,9 @@ export function BoardColumn({title,count,tasks,onDelete,onEdit,id,search,priorit
         <span className="bg-gray-400 text-gray-300 text-sm font-bold px-2 py-0.5 rounded-md"
         >{count}</span>
       </div>
-      <SortableContext items={tasks.map(t=>t.id)}>
+      <SortableContext items={finalTasks.map(t=>t.id)}>
         <div className="flex flex-col gap-4">
-          {searchTask.map((taskItem)=>(
+          {finalTasks.map((taskItem)=>(
             <TaskCard  
               key={taskItem.id}
               taskItem={taskItem}

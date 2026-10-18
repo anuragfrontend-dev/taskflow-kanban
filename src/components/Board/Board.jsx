@@ -10,6 +10,7 @@ export function Board() {
   const [tasks,setTasks]=useState([]);
   const [search,setSearch]=useState('');
   const [priority,setPriority]=useState('ALL');
+  const [sortBy,setSortBy]=useState('ALL');
 
   const getData=async ()=>{
     try{
@@ -132,6 +133,8 @@ export function Board() {
       <BoardHeader 
         priority={priority}
         setPriority={setPriority} 
+        sortBy={sortBy}
+        setSortBy={setSortBy}
       />
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-5'>
@@ -144,6 +147,7 @@ export function Board() {
               id='todo'
               search={search}
               priority={priority}
+              sortBy={sortBy}
             />
             <BoardColumn 
               title='In Progress' 
@@ -154,6 +158,7 @@ export function Board() {
               id='inprogress'
               search={search}
               priority={priority}
+              sortBy={sortBy}
             />
             <BoardColumn 
               title='Done' 
@@ -164,6 +169,7 @@ export function Board() {
               id='done'
               search={search}
               priority={priority}
+              sortBy={sortBy}
             />
           </div>
         </DndContext>
