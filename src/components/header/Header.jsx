@@ -6,7 +6,7 @@ import { addData } from "../../api/api";
 import { compressImage } from "../../utils/compressImage";
 
 
-export function Header({ setTasks }){
+export function Header({ setTasks,search, setSearch }){
   const [addTask,setAddTask]=useState(false);
   const [title,setTitle]=useState('');
   const [priority,setPriority]=useState('HIGH');
@@ -59,6 +59,9 @@ export function Header({ setTasks }){
     setAddTask(!addTask);
   }
 
+  const handleSearch = (e) => {
+    setSearch(e.target.value);
+  }
 
   return (
     <div className="fixed top-0 left-0 right-0 h-16 px-4 bg-white
@@ -70,7 +73,7 @@ export function Header({ setTasks }){
       </div>
 
       <div className="hidden md:flex w-full items-center md:ml-12 md:mr-4 justify-between relative">
-        <input type="search" placeholder="search tasks..."
+        <input type="search" placeholder="search tasks..." value={search} onChange={handleSearch}
           className="py-2 px-4 pl-9 w-full font-medium outline-none rounded-lg text-sm bg-gray-100" />
         <CiSearch className="absolute left-3 h-4 w-4 text-gray-500" />
       </div>
@@ -139,7 +142,7 @@ export function Header({ setTasks }){
 
       <div className="flex md:hidden fixed top-12 left-0 right-0 bg-white px-4 py-3 gap-3 border-b">
         <div className="flex flex-1 items-center relative">
-          <input type="search" placeholder="search tasks..."
+          <input type="search" placeholder="search tasks..." value={search} onChange={handleSearch}
             className="w-full py-1.5 pl-10 bg-gray-100 rounded-lg text-sm outline-none font-medium" />
           <CiSearch className="absolute left-3 h-5 w-5 text-gray-500" />
         </div>
