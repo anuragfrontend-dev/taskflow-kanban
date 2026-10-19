@@ -2,7 +2,7 @@ import { useState, useEffect } from 'react'
 import { Header } from '../header/Header'
 import { BoardColumn } from './BoardColumn'
 import { BoardHeader } from './BoardHeader'
-import { fetchData, deleteData, editData  } from '../../api/api'
+import { fetchData, deleteData, editData,clearAllFromApi  } from '../../api/api'
 import { DndContext, closestCenter, PointerSensor,TouchSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { arrayMove } from '@dnd-kit/sortable'
 
@@ -11,6 +11,9 @@ export function Board() {
   const [search,setSearch]=useState('');
   const [priority,setPriority]=useState('ALL');
   const [sortBy,setSortBy]=useState('ALL');
+  const [isDark,setIsDark]=useState(()=>{
+    return localStorage.getItem('theme')==='dark';
+  });
 
   const getData=async ()=>{
     try{
@@ -117,6 +120,22 @@ export function Board() {
 
 }
 
+  const handleClearAll=async()=>{
+    if(confirm('Are you sure delete all tasks')){
+      const oldTasks = [...tasks]
+      setTasks([]);
+      try {
+        await clearAllFromApi(oldTasks); 
+        setTasks([]); 
+      } catch (err) {
+        console.log("Clear all failed", err)
+      }
+    }
+  }
+
+  useEffect(()=>{
+    localStorage.setItem('theme',isDark? 'dark':'light');
+  },[isDark])
  
 
   const todo=tasks.filter((task)=>(task.status==='todo'));
@@ -127,14 +146,18 @@ export function Board() {
     <Header 
       setTasks={setTasks}
       search={search}
-      setSearch={setSearch}  
+      setSearch={setSearch} 
+      isDark={isDark}
     />
-    <div className="pt-32 md:pt-15 bg-gray-200 w-full min-h-screen px-6 md:px-12 py-4">
+    <div className={`pt-32 md:pt-15 w-full min-h-screen px-6 md:px-12 py-4 ${isDark ? 'bg-[#09090B]':'bg-gray-200'}`}>
       <BoardHeader 
         priority={priority}
         setPriority={setPriority} 
         sortBy={sortBy}
         setSortBy={setSortBy}
+        isDark={isDark}
+        setIsDark={setIsDark}
+        onClearAll={handleClearAll}
       />
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-5'>
@@ -148,6 +171,7 @@ export function Board() {
               search={search}
               priority={priority}
               sortBy={sortBy}
+              isDark={isDark}
             />
             <BoardColumn 
               title='In Progress' 
@@ -159,6 +183,7 @@ export function Board() {
               search={search}
               priority={priority}
               sortBy={sortBy}
+              isDark={isDark}
             />
             <BoardColumn 
               title='Done' 
@@ -170,6 +195,7 @@ export function Board() {
               search={search}
               priority={priority}
               sortBy={sortBy}
+              isDark={isDark}
             />
           </div>
         </DndContext>

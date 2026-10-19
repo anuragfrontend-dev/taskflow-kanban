@@ -6,7 +6,7 @@ import { addData } from "../../api/api";
 import { compressImage } from "../../utils/compressImage";
 
 
-export function Header({ setTasks,search, setSearch }){
+export function Header({ setTasks,search, setSearch,isDark }){
   const [addTask,setAddTask]=useState(false);
   const [title,setTitle]=useState('');
   const [priority,setPriority]=useState('HIGH');
@@ -64,8 +64,9 @@ export function Header({ setTasks,search, setSearch }){
   }
 
   return (
-    <div className="fixed top-0 left-0 right-0 h-16 px-4 bg-white
-      md:px-12 z-200 flex  items-center">
+    <div className={`fixed top-0 left-0 right-0 h-16 px-4 
+      md:px-12 z-200 flex  items-center 
+      ${isDark ? "bg-[#121212] text-white md:border-b" : "bg-white"}`}>
 
       <div className="flex items-center shrink-0">
         <AiFillCheckSquare className="h-8 w-8 md:h-10 md:w-10 rounded-[5px]" />
@@ -74,12 +75,14 @@ export function Header({ setTasks,search, setSearch }){
 
       <div className="hidden md:flex w-full items-center md:ml-12 md:mr-4 justify-between relative">
         <input type="search" placeholder="search tasks..." value={search} onChange={handleSearch}
-          className="py-2 px-4 pl-9 w-full font-medium outline-none rounded-lg text-sm bg-gray-100" />
+          className={`py-2 px-4 pl-9 w-full font-medium outline-none rounded-lg text-sm 
+          ${isDark ? "bg-gray-50 text-gray-700" : 'bg-gray-100'}`}/>
         <CiSearch className="absolute left-3 h-4 w-4 text-gray-500" />
       </div>
 
       <div className="flex items-center gap-3 shrink-0 ml-auto">
-        <IoIosNotificationsOutline className="w-7 h-7 md:w-8 md:h-8 cursor-pointer" />
+        <IoIosNotificationsOutline color={`${isDark ? 'text-white' : 'text-black'}`}
+          className="w-7 h-7 md:w-8 md:h-8 cursor-pointer" />
         <img src='user.png' className="h-8 w-8 md:h-9 md:w-9 rounded-full" />
         <div className="hidden md:block bg-violet-600 py-2 px-4 text-white 
           text-sm font-medium rounded-full cursor-pointer whitespace-nowrap" onClick={handleTask}>
@@ -87,19 +90,21 @@ export function Header({ setTasks,search, setSearch }){
         </div>
 
         {addTask &&(
-          <form className="absolute right-0 left-0 top-26 rounded-b-xl sm:left-auto md:right-2 md:rounded-2xl md:border  md:top-16 font-medium  sm:w-120  
-            px-4 py-2 z-100  shadow-xl bg-white text-black border" onSubmit={handleSubmit}>
+          <form className={`absolute right-0 left-0 top-26 rounded-b-xl sm:left-auto md:right-2 md:rounded-2xl md:border  md:top-16 font-medium  sm:w-120  
+            px-4 py-2 z-100  shadow-xl ${isDark ? 'bg-[#121212] text-white' : 'bg-white text-black'}`} onSubmit={handleSubmit}>
             <div className="flex flex-col mb-1">
               <label className="font-bold text-sm">Task:</label>
-              <input type="text" placeholder="enter task" 
-                required className="px-3 py-1 text-sm rounded w-full outline-0 border bg-gray-100" 
+              <input type="text" placeholder="enter task"
+                required className={`px-3 py-1 text-sm rounded w-full outline-0 border 
+                  ${isDark ? 'bg-gray-50 text-black' : 'bg-gray-100'}`}
                 value={title}
                 onChange={(e)=>setTitle(e.target.value)}
               />
             </div>
             <div className="flex flex-col mb-1">
             <label className="font-bold text-sm">Priority:</label>
-              <select className="text-sm font-medium border outline-0 p-1 bg-gray-100 rounded text-gray-500" value={priority} 
+              <select className={`text-sm font-medium border outline-0 p-1 bg-gray-100 rounded 
+                  ${isDark ? 'bg-white text-black' : 'text-gray-500'}`}  value={priority} 
               onChange={(e)=>setPriority(e.target.value)} >
               <option value="HIGH">HIGH</option>
               <option value="MEDIUM">MEDIUM</option>
@@ -108,7 +113,8 @@ export function Header({ setTasks,search, setSearch }){
             </div>
             <div className="flex items-center gap-2 mt-2">
               <label className="font-bold text-sm">Due Date:</label>
-              <input type="date" className="px-3 pt-1 pb-1 rounded text-sm mt-1 border bg-gray-100" 
+              <input type="date" className={`px-3 pt-1 pb-1 rounded text-sm mt-1 border
+                ${isDark ? 'bg-gray-50 text-black' : 'bg-gray-100'}`} 
                 required 
                 value={date} 
                 onChange={(e)=>setDate(e.target.value)}
@@ -123,16 +129,18 @@ export function Header({ setTasks,search, setSearch }){
                 ref={fileInputRef}
                 hidden
               />
-              <span className="text-sm px-3 py-1 rounded-full cursor-pointer border bg-gray-100"
+              <span className={`text-sm px-3 py-1 rounded-full cursor-pointer border
+                  ${isDark ? 'bg-gray-50 text-black' : 'bg-gray-100'}`}
                 onClick={()=>fileInputRef.current.click()}>
                 {avatar?  "✓ Image selected" : "Upload avatar"}
               </span>
             </div>
             <div className="mt-3 flex gap-3">
-              <button className="border flex-1 rounded-full bg-violet-600 hover:bg-violet-500 text-white 
+              <button className="flex-1 rounded-full bg-violet-600 hover:bg-violet-500 text-white 
               font-medium text-sm py-2 cursor-pointer"
               type="submit">Add Task</button>
-              <button className="flex-1  rounded-full bg-gray-200  text-sm py-2 cursor-pointer" type="button" 
+              <button className={`flex-1  rounded-full text-sm py-2 cursor-pointer 
+                ${isDark ? 'bg-gray-50 text-black' : 'bg-gray-200'}`} type="button" 
               onClick={()=>setAddTask(!addTask)}
                 >Cancel</button>
             </div>
@@ -140,10 +148,12 @@ export function Header({ setTasks,search, setSearch }){
         )}
       </div>
 
-      <div className="flex md:hidden fixed top-12 left-0 right-0 bg-white px-4 py-3 gap-3 border-b">
+      <div className={`flex md:hidden fixed top-12 left-0 right-0 px-4 py-3 gap-3 border-b 
+        ${isDark? 'bg-[#121212]':'bg-white'}`}>
         <div className="flex flex-1 items-center relative">
           <input type="search" placeholder="search tasks..." value={search} onChange={handleSearch}
-            className="w-full py-1.5 pl-10 bg-gray-100 rounded-lg text-sm outline-none font-medium" />
+            className={`w-full py-1.5 pl-10 rounded-lg text-sm outline-none font-medium 
+            ${isDark ? 'bg-gray-50 text-black' : 'bg-gray-100'}`} />
           <CiSearch className="absolute left-3 h-5 w-5 text-gray-500" />
         </div>
         <div className="bg-violet-600 text-white text-sm font-medium px-4 rounded-full 

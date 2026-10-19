@@ -8,7 +8,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
 
-export function TaskCard({ taskItem, onDelete,onEdit}) {
+export function TaskCard({ taskItem, onDelete,onEdit,isDark}) {
   const { priority, title, done, avatar, due, id,status } = taskItem;
   const [showMenu, setShowMenu] = useState(false);
   const [editTitle, setEditTitle] = useState('');
@@ -78,15 +78,15 @@ export function TaskCard({ taskItem, onDelete,onEdit}) {
   return (
     <>
       {editId === id ?
-        (<form className="bg-white rounded-lg px-4 py-2 shadow-sm hover:shadow-lg" 
+        (<form className={`rounded-lg px-4 py-2 shadow-sm hover:shadow-lg ${isDark? 'bg-[#232326]':'bg-white'}`} 
           onSubmit={(e)=>handleEditSubmit(e,id)}>
           <span
             className={`px-1 rounded-m text-sm font-medium rounded ${badgeColor[priority]}`}>
             {priority}
           </span>
-          <h1 className="font-bold text-xl">Edit Task</h1>
+          <h1 className={`font-bold text-xl ${isDark?'text-white':''}`}>Edit Task</h1>
           <div className="flex flex-col mb-1">
-            <label className="text-sm text-gray-500 font-medium">Priority</label>
+            <label className={`text-sm font-medium ${isDark? 'text-gray-200':'text-gray-500'}`}>Priority</label>
             <select className="text-sm font-medium border outline-0 p-1 bg-gray-100 rounded" value={editPriority}
               onChange={(e) => setEditPriority(e.target.value)} >
               <option value="HIGH">HIGH</option>
@@ -95,7 +95,7 @@ export function TaskCard({ taskItem, onDelete,onEdit}) {
             </select>
           </div>
           <div className="flex flex-col mb-1">
-            <label className="text-gray-500 text-sm font-medium">Task</label>
+            <label className={` text-sm font-medium ${isDark? 'text-gray-200':'text-gray-500'}`}>Task</label>
             <input type="text" placeholder="enter task"
               required className="py-1 px-2 bg-gray-100 text-sm font-medium rounded border outline-0"
               value={editTitle}
@@ -105,7 +105,7 @@ export function TaskCard({ taskItem, onDelete,onEdit}) {
           <div className="flex flex-col mb-2">
             {editDone ? (
               <>
-                <label className="font-medium text-sm text-gray-500">complete</label>
+                <label className={`font-medium text-sm ${isDark? 'text-gray-200':'text-gray-500'}`}>complete</label>
                 <input type="date" className="px-3 py-1 bg-gray-100 rounded text-sm outline-0 font-medium border"
                   required
                   value={formatForInput(editDone)}
@@ -114,7 +114,7 @@ export function TaskCard({ taskItem, onDelete,onEdit}) {
               </>
             ) : (
               <>
-                <label className="font-medium text-sm text-gray-500">Due</label>
+                <label className={`font-medium text-sm ${isDark? 'text-gray-200':'text-gray-500'}`}>Due</label>
                 <input type="date" 
                   className="px-3 py-1 bg-gray-100 rounded text-sm font-medium border outline-0"
                   required
@@ -125,7 +125,7 @@ export function TaskCard({ taskItem, onDelete,onEdit}) {
             }
           </div>
           <div className="flex flex-col mb-2">
-            <label className="font-medium text-sm text-gray-500">Avatar</label>
+            <label className={`font-medium text-sm ${isDark? 'text-gray-200':'text-gray-500'}`}>Avatar</label>
             <div className="flex items-center justify-start">
               {editAvatar? (<img src={editAvatar} className="h-8 w-8 rounded-full" />)
               :(<img src='user.png' className="h-8 w-8 rounded-full" />)}
@@ -138,8 +138,8 @@ export function TaskCard({ taskItem, onDelete,onEdit}) {
               />
               <div className="flex items-center ml-2">{editAvatar ? (
                 <>
-                  <span className="font-bold text-sm">Avatar •</span>
-                  <span className="ml-1 font-medium text-gray-600">Uploaded</span>
+                  <span className={`font-bold text-sm ${isDark? 'text-white':''}`}>Avatar •</span>
+                  <span className={`ml-1 font-medium ${isDark? 'text-gray-300':'text-gray-600'}`}>Uploaded</span>
                   <CircleCheck fill="green" width={20} height={20} color="white" />
                 </>
               ) : <span className="font-medium text-sm">No Avatar Uploaded</span>}</div>
@@ -168,22 +168,24 @@ export function TaskCard({ taskItem, onDelete,onEdit}) {
             </button>
           </div>
         </form>) : (
-          <div className="bg-white rounded-lg p-4 shadow-sm flex flex-col items-start 
-            hover:shadow-lg relative cursor-grab " ref={setNodeRef} style={{...style,touchAction:'none'}} {...attributes} {...listeners} >
+          <div className={`rounded-lg p-4 shadow-sm flex flex-col items-start 
+            ${isDark? 'bg-[#232326] text-white hover:bg-[#2E2E32]':'bg-white'}
+            hover:shadow-lg relative cursor-grab`} 
+            ref={setNodeRef} style={{...style,touchAction:'none'}} {...attributes} {...listeners} >
             <div className="flex justify-between w-full">
               <span
                 className={`py-1 px-2 rounded-m text-xs font-bold rounded ${badgeColor[priority]}`}>
                 {priority}
               </span>
-              <button className="cursor-pointer hover:bg-gray-100 rounded" onClick={() => setShowMenu(!showMenu)}>
+              <button className={`cursor-pointer rounded ${isDark? 'hover:bg-black':'hover:bg-gray-100'}`} onClick={() => setShowMenu(!showMenu)}>
                 <BsThreeDotsVertical />
               </button>
             </div>
             {showMenu && (
-              <div className=" absolute right-2 top-10 bg-white z-50 
-        shadow-xl border rounded-lg py-1 flex flex-col">
+              <div className={ `absolute right-2 top-10 z-50 
+                shadow-xl border rounded-lg py-1 flex flex-col ${isDark? 'bg-[#2E2E32] text-white':'bg-white'}`}>
                 <button
-                  className="text-left px-2 py-1 text-sm hover:bg-gray-100"
+                  className={`text-left px-2 py-1 text-sm rounded-lg cursor-pointer ${isDark?'hover:bg-black':'hover:bg-gray-100'}`}
                   onClick={() => {
                     setEditId(id);
                     setEditPriority(priority);
@@ -194,7 +196,8 @@ export function TaskCard({ taskItem, onDelete,onEdit}) {
                   }}>
                   ✏️Edit</button>
                 <button
-                  className="text-left px-2 py-1 text-sm hover:bg-gray-100 text-red-600"
+                  className={`text-left px-2 py-1 text-sm text-red-600 rounded-lg cursor-pointer 
+                    ${isDark?'hover:bg-black':'hover:bg-gray-100'}`}
                   onClick={() => onDelete(id)}>
                   🗑️Delete
                 </button>
