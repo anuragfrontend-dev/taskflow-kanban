@@ -20,3 +20,13 @@ export function deleteData(id){
 export function editData(id,newEditData){
   return api.put(`/tasks/${id}`,newEditData);
 }
+
+export async function clearAllFromApi(tasks){
+  for (let task of tasks){
+    try{
+      await api.delete(`/tasks/${task.id}`)
+    }catch(err){
+      console.log(`failed to delete ${task.id}`,err);
+    }
+  }
+}
