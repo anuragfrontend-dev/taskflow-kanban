@@ -14,6 +14,10 @@ export function Board() {
   const [isDark,setIsDark]=useState(()=>{
     return localStorage.getItem('theme')==='dark';
   });
+  const [lastUpdated,setLastUpdated]=useState(()=>{
+    const saved = localStorage.getItem('boardLastUpdated');
+    return saved ? new Date(saved) : new Date();
+  })
 
   const getData=async ()=>{
     try{
@@ -38,6 +42,9 @@ export function Board() {
     } catch (err) {
       console.log('Delete failed', err);
     }
+    const now =new Date();
+    setLastUpdated(now);
+    localStorage.setItem('boardLastUpdated',now.toISOString());
   }
 
   const handleEdit=async ( id,newEditData ) =>{
@@ -51,6 +58,9 @@ export function Board() {
     }catch(err){
       console.log('Edit failed',err);
     }
+    const now =new Date();
+    setLastUpdated(now);
+    localStorage.setItem('boardLastUpdated',now.toISOString());
   }
 
   const sensors = useSensors(
@@ -117,6 +127,9 @@ export function Board() {
         getData();
     }
   }
+    const now =new Date();
+    setLastUpdated(now);
+    localStorage.setItem('boardLastUpdated',now.toISOString());
 
 }
 
@@ -130,6 +143,9 @@ export function Board() {
       } catch (err) {
         console.log("Clear all failed", err)
       }
+      const now =new Date();
+      setLastUpdated(now);
+      localStorage.setItem('boardLastUpdated',now.toISOString());
     }
   }
 
@@ -148,6 +164,7 @@ export function Board() {
       search={search}
       setSearch={setSearch} 
       isDark={isDark}
+      setLastUpdated={setLastUpdated}
     />
     <div className={`pt-32 md:pt-15 w-full min-h-screen px-6 md:px-12 py-4 ${isDark ? 'bg-[#09090B]':'bg-gray-200'}`}>
       <BoardHeader 
@@ -158,6 +175,7 @@ export function Board() {
         isDark={isDark}
         setIsDark={setIsDark}
         onClearAll={handleClearAll}
+        lastUpdated={lastUpdated}
       />
         <DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
           <div className='grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4 mt-5'>
