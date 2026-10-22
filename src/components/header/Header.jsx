@@ -6,7 +6,7 @@ import { addData } from "../../api/api";
 import { compressImage } from "../../utils/compressImage";
 
 
-export function Header({ setTasks,search, setSearch,isDark }){
+export function Header({ setTasks,search, setSearch,isDark,setLastUpdated }){
   const [addTask,setAddTask]=useState(false);
   const [title,setTitle]=useState('');
   const [priority,setPriority]=useState('HIGH');
@@ -41,6 +41,9 @@ export function Header({ setTasks,search, setSearch,isDark }){
     }catch(err){
       console.log('Api error',err);
     }
+    const now =new Date();
+    setLastUpdated(now);
+    localStorage.setItem('boardLastUpdated',now.toISOString());
   }
 
   const handleAvatar= async(e)=>{
