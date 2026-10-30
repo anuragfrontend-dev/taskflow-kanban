@@ -2,12 +2,11 @@ import { useState, useEffect } from 'react'
 import { Header } from '../header/Header'
 import { BoardColumn } from './BoardColumn'
 import { BoardHeader } from './BoardHeader'
-import { fetchData, deleteData, editData,clearAllFromApi  } from '../../api/api'
+import { getData, deleteTask, updateTask, clearTasks, reorderTask } from '../../store/tasksSlice'
 import { DndContext, closestCenter, PointerSensor,TouchSensor, useSensor, useSensors } from '@dnd-kit/core'
-import { arrayMove } from '@dnd-kit/sortable'
+import { useDispatch, useSelector } from 'react-redux'
 
 export function Board() {
-  const [tasks,setTasks]=useState([]);
   const [search,setSearch]=useState('');
   const [priority,setPriority]=useState('ALL');
   const [sortBy,setSortBy]=useState('ALL');
@@ -19,45 +18,24 @@ export function Board() {
     return saved ? new Date(saved) : new Date();
   })
 
-  const getData=async ()=>{
-    try{
-      const response=await fetchData();
-      setTasks(response.data);
-    }catch(err){
-      console.log('Api failed',err);
-    }
-  }
+  const dispatch=useDispatch();
+  const {tasks}=useSelector(state=>state.tasks)
+
 
   useEffect(()=>{
-    getData();
+    dispatch(getData());
   },[]);
 
-  const handleDelete = async (id) => {
-    try {
-      const res = await deleteData(id);
-      if (res.status === 200) {
-        const filtered = tasks.filter((currTask) => currTask.id !== id);
-        setTasks(filtered);
-      }
-    } catch (err) {
-      console.log('Delete failed', err);
-    }
+  const handleDelete=(id) => {
+    dispatch(deleteTask(id));
     const now =new Date();
     setLastUpdated(now);
     localStorage.setItem('boardLastUpdated',now.toISOString());
   }
 
-  const handleEdit=async ( id,newEditData ) =>{
-    try{
-      const res = await editData(id,newEditData);
-      if(res.status===200){
-        const result = tasks.map((currTask)=>
-          id===currTask.id? {...currTask,...newEditData}:currTask)
-        setTasks(result)
-    }
-    }catch(err){
-      console.log('Edit failed',err);
-    }
+  const handleEdit=( id,newEditData ) =>{
+    console.log('Id',id, 'data',newEditData)
+    dispatch(updateTask({id,newEditData}));
     const now =new Date();
     setLastUpdated(now);
     localStorage.setItem('boardLastUpdated',now.toISOString());
@@ -87,9 +65,7 @@ export function Board() {
     if(!activeTask) return;
 
     if(overTask && activeTask.status === overTask.status){
-      const oldIndex = tasks.findIndex(t=>t.id === activeId);
-      const newIndex = tasks.findIndex(t=>t.id === overId);
-      setTasks((prevTasks)=>arrayMove(prevTasks,oldIndex,newIndex));
+      dispatch(reorderTask({activeId,overId}));
       return;
     }
 
@@ -105,44 +81,29 @@ export function Board() {
       let updatedTasks;
 
       if(newStatus === 'done'){
-        updatedTasks = tasks.map(t=>t.id===activeId? 
-          {...t,done:new Date().toISOString().split('T')[0] ,status:newStatus}:t);
+        updatedTasks = {...activeTask,done:new Date().toISOString().split('T')[0] ,status:newStatus};
       }
       else if(newStatus === 'inprogress'){
-        updatedTasks = tasks.map(t=>t.id===activeId? 
-          {...t,due:new Date().toISOString().split('T')[0] ,status:newStatus}:t);
+        updatedTasks =  {...activeTask,due:new Date().toISOString().split('T')[0] ,status:newStatus};
       }
       else{
-        updatedTasks = tasks.map(t=>t.id===activeId?
-          {...t,status:newStatus}:t
-        )
+        updatedTasks = {...activeTask, status:newStatus}
       }
 
-      setTasks(updatedTasks);
-      try{
-        const payload = updatedTasks.find((t)=>(t.id===activeId));
-        await editData(activeId,payload);
-      } catch (err){
-        console.log('status update failed',err);
-        getData();
+      dispatch(updateTask({id:activeId,newEditData:updatedTasks}));
+    
     }
-  }
     const now =new Date();
     setLastUpdated(now);
     localStorage.setItem('boardLastUpdated',now.toISOString());
 
-}
+  }
 
   const handleClearAll=async()=>{
     if(confirm('Are you sure delete all tasks')){
-      const oldTasks = [...tasks]
-      setTasks([]);
-      try {
-        await clearAllFromApi(oldTasks); 
-        setTasks([]); 
-      } catch (err) {
-        console.log("Clear all failed", err)
-      }
+
+      dispatch(clearTasks(tasks))
+      
       const now =new Date();
       setLastUpdated(now);
       localStorage.setItem('boardLastUpdated',now.toISOString());
@@ -160,7 +121,6 @@ export function Board() {
   return (
    <div>
     <Header 
-      setTasks={setTasks}
       search={search}
       setSearch={setSearch} 
       isDark={isDark}
