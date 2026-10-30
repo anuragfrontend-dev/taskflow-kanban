@@ -2,17 +2,19 @@ import { useState,useRef } from "react"
 import { AiFillCheckSquare } from "react-icons/ai"
 import { IoIosNotificationsOutline } from "react-icons/io";
 import { CiSearch } from "react-icons/ci";
-import { addData } from "../../api/api";
+import { addedTask } from "../../store/tasksSlice";
 import { compressImage } from "../../utils/compressImage";
+import { useDispatch } from "react-redux";
 
 
-export function Header({ setTasks,search, setSearch,isDark,setLastUpdated }){
+export function Header({ search, setSearch,isDark,setLastUpdated }){
   const [addTask,setAddTask]=useState(false);
   const [title,setTitle]=useState('');
   const [priority,setPriority]=useState('HIGH');
   const [date,setDate]=useState('');
   const [avatar,setAvatar]=useState('');
   const fileInputRef=useRef(null);
+  const dispatch=useDispatch();
 
   const handleSubmit=async(e)=>{
     e.preventDefault();
@@ -25,22 +27,16 @@ export function Header({ setTasks,search, setSearch,isDark,setLastUpdated }){
       status:'todo'
     }
 
-    try{
-      const res=await addData(newTask);
-      console.log(res.data);
-      setTasks(prev=>[...prev,res.data]);
+    dispatch(addedTask(newTask));
 
-      setTitle('');
-      setDate('');
-      setAvatar('');
-      if(fileInputRef.current){
-        fileInputRef.current.value='';
-      }
-      setAddTask(false);
-
-    }catch(err){
-      console.log('Api error',err);
+    setTitle('');
+    setDate('');
+    setAvatar('');
+    if(fileInputRef.current){
+      fileInputRef.current.value='';
     }
+    setAddTask(false);
+
     const now =new Date();
     setLastUpdated(now);
     localStorage.setItem('boardLastUpdated',now.toISOString());

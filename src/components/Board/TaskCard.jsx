@@ -41,7 +41,7 @@ export function TaskCard({ taskItem, onDelete,onEdit,isDark}) {
       alert('title is empty please filled it!');
       return;
     }
-
+    console.log('Id',id, 'data',newEditData)
     onEdit(id,newEditData);
     setEditId(null);
     setShowMenu(false);
