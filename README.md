@@ -1,16 +1,32 @@
-# React + Vite
+# TaskFlow - Kanban Task Manager 📋
 
-This template provides a minimal setup to get React working in Vite with HMR and some Oxlint rules.
+A fully responsive Trello-inspired Kanban board built with React, Redux Toolkit & Mock REST API.
 
-Currently, two official plugins are available:
+**Live Demo:** https://taskflow-kanban-tan.vercel.app/
+**Tech Stack:** React.js, Redux Toolkit, Tailwind CSS, Axios, dnd-kit
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+### 🚀 Features
 
-## React Compiler
+- **Kanban Board:** 3 columns - Todo / In Progress / Done
+- **Drag & Drop:** Smooth drag and drop using dnd-kit
+- **Redux Toolkit State:** Global state management with createSlice & createAsyncThunk
+- **REST API CRUD:** Full Create, Read, Update, Delete using Mock API + Axios
+- **Search & Filter:** Search by task name, filter by priority, sort by date
+- **Theme Toggle:** Light / Dark mode support
+- **Responsive:** Works perfectly on mobile, tablet, desktop
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+### 🛠️ Tech Stack
 
-## Expanding the Oxlint configuration
+- **Frontend:** React, Vite, Tailwind CSS
+- **State Management:** Redux Toolkit (createSlice, createAsyncThunk)
+- **Drag & Drop:** @dnd-kit/core, @dnd-kit/sortable
+- **API:** Axios + Mock REST API (MockAPI.io / JSON Server)
+- **Deployment:** Vercel
 
-If you are developing a production application, we recommend using TypeScript with type-aware lint rules enabled. Check out the [TS template](https://github.com/vitejs/vite/tree/main/packages/create-vite/template-react-ts) for information on how to integrate TypeScript and Oxlint's TypeScript related rules in your project.
+
+⚙️ How to Run Locally 
+
+npm install npm run dev
+
+👨‍💻 Author
+Anurag - Frontend Developer
