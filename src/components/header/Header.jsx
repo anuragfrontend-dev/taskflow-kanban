@@ -1,13 +1,15 @@
-import { useState,useRef } from "react"
+import { useState,useRef, useEffect } from "react"
 import { AiFillCheckSquare } from "react-icons/ai"
 import { IoIosNotificationsOutline } from "react-icons/io";
 import { CiSearch } from "react-icons/ci";
 import { addedTask } from "../../store/tasksSlice";
 import { compressImage } from "../../utils/compressImage";
 import { useDispatch } from "react-redux";
+import { Link } from "react-router-dom";
+import { IoHomeOutline } from "react-icons/io5";
 
 
-export function Header({ search, setSearch,isDark,setLastUpdated }){
+export function Header({ search, setSearch,isDark,setLastUpdated,showSearch,showNewTask,showHomeIcon }){
   const [addTask,setAddTask]=useState(false);
   const [title,setTitle]=useState('');
   const [priority,setPriority]=useState('HIGH');
@@ -15,6 +17,27 @@ export function Header({ search, setSearch,isDark,setLastUpdated }){
   const [avatar,setAvatar]=useState('');
   const fileInputRef=useRef(null);
   const dispatch=useDispatch();
+  const [taskFlowLoggedInUser,setTaskFlowLoggedInUser]=useState('');
+
+  useEffect(()=>{
+    const loadUser=()=>{
+      const user= JSON.parse(localStorage.getItem('taskFlowLoggedInUser'))
+      if(user){
+        setTaskFlowLoggedInUser(user);
+      }
+      else{
+        setTaskFlowLoggedInUser(null);
+      }
+    }
+    loadUser();
+    window.addEventListener('updateUser',loadUser);
+    window.addEventListener('storage',loadUser);
+
+    return()=>{
+      window.removeEventListener('updateUser',loadUser);
+      window.removeEventListener('storage',loadUser);
+    }
+  },[])
 
   const handleSubmit=async(e)=>{
     e.preventDefault();
@@ -64,29 +87,51 @@ export function Header({ search, setSearch,isDark,setLastUpdated }){
 
   return (
     <div className={`fixed top-0 left-0 right-0 h-16 px-4 
-      md:px-12 z-200 flex  items-center 
+      md:px-12 z-200 flex  items-center ${!showSearch? 'border-b':''}
       ${isDark ? "bg-[#121212] text-white md:border-b" : "bg-white"}`}>
 
-      <div className="flex items-center shrink-0">
-        <AiFillCheckSquare className="h-8 w-8 md:h-10 md:w-10 rounded-[5px]" />
-        <h1 className="font-bold text-2xl md:text-3xl ml-1">TaskFlow</h1>
-      </div>
+      <Link to='/'>
+        <div className="flex items-center shrink-0 cursor-pointer">
+          <AiFillCheckSquare className="h-8 w-8 md:h-10 md:w-10 rounded-[5px]" />
+          <h1 className="font-bold text-2xl md:text-3xl ml-1">TaskFlow</h1>
+        </div>
+      </Link>
+      
 
-      <div className="hidden md:flex w-full items-center md:ml-12 md:mr-4 justify-between relative">
-        <input type="search" placeholder="search tasks..." value={search} onChange={handleSearch}
-          className={`py-2 px-4 pl-9 w-full font-medium outline-none rounded-lg text-sm 
-          ${isDark ? "bg-gray-50 text-gray-700" : 'bg-gray-100'}`}/>
-        <CiSearch className="absolute left-3 h-4 w-4 text-gray-500" />
-      </div>
+      {showSearch && (
+        <div className="hidden md:flex w-full items-center md:ml-12 md:mr-4 justify-between relative">
+          <input type="search" placeholder="search tasks..." value={search} onChange={handleSearch}
+            className={`py-2 px-4 pl-9 w-full font-medium outline-none rounded-lg text-sm 
+            ${isDark ? "bg-gray-50 text-gray-700" : 'bg-gray-100'}`}/>
+          <CiSearch className="absolute left-3 h-4 w-4 text-gray-500" />
+        </div>
+      )}
+      
 
       <div className="flex items-center gap-3 shrink-0 ml-auto">
+        {showHomeIcon &&(
+          <Link to={'/'} className="flex items-center justify-center gap-2
+            hover:underline underline-offset-2 decoration-blue-600 ">
+            <IoHomeOutline 
+              color={`${isDark ? 'text-white' : 'text-black'}`} 
+              className="w-6 h-6 md:w-8 md:h-8 cursor-pointer" 
+            />
+            <div className="font-medium text-xl hidden md:block">Home</div>
+          </Link>
+        )}
         <IoIosNotificationsOutline color={`${isDark ? 'text-white' : 'text-black'}`}
           className="w-7 h-7 md:w-8 md:h-8 cursor-pointer" />
-        <img src='user.png' className="h-8 w-8 md:h-9 md:w-9 rounded-full" />
-        <div className="hidden md:block bg-violet-600 py-2 px-4 text-white 
-          text-sm font-medium rounded-full cursor-pointer whitespace-nowrap" onClick={handleTask}>
-          + New Task
-        </div>
+        <Link to={taskFlowLoggedInUser? '/Profile':'/login'}>
+          <img src={taskFlowLoggedInUser?.profilePic||'./user.png'}
+            className="h-8 w-8 md:h-9 md:w-9 rounded-full object-cover cursor-pointer" 
+          />
+        </Link>
+        {showNewTask && (
+          <div className="hidden md:block bg-violet-600 py-2 px-4 text-white 
+            text-sm font-medium rounded-full cursor-pointer whitespace-nowrap" onClick={handleTask}>
+            + New Task
+          </div>
+        )}
 
         {addTask &&(
           <form className={`absolute right-0 left-0 top-26 rounded-b-xl sm:left-auto md:right-2 md:rounded-2xl md:border  md:top-16 font-medium  sm:w-120  
@@ -147,19 +192,21 @@ export function Header({ search, setSearch,isDark,setLastUpdated }){
         )}
       </div>
 
-      <div className={`flex md:hidden fixed top-12 left-0 right-0 px-4 py-3 gap-3 border-b 
-        ${isDark? 'bg-[#121212]':'bg-white'}`}>
-        <div className="flex flex-1 items-center relative">
-          <input type="search" placeholder="search tasks..." value={search} onChange={handleSearch}
-            className={`w-full py-1.5 pl-10 rounded-lg text-sm outline-none font-medium 
-            ${isDark ? 'bg-gray-50 text-black' : 'bg-gray-100'}`} />
-          <CiSearch className="absolute left-3 h-5 w-5 text-gray-500" />
+      {showSearch && (
+        <div className={`flex md:hidden fixed top-12 left-0 right-0 px-4 py-3 gap-3 border-b 
+          ${isDark? 'bg-[#121212]':'bg-white'}`}>
+          <div className="flex flex-1 items-center relative">
+            <input type="search" placeholder="search tasks..." value={search} onChange={handleSearch}
+              className={`w-full py-1.5 pl-10 rounded-lg text-sm outline-none font-medium 
+              ${isDark ? 'bg-gray-50 text-black' : 'bg-gray-100'}`} />
+            <CiSearch className="absolute left-3 h-5 w-5 text-gray-500" />
+          </div>
+          <div className="bg-violet-600 text-white text-sm font-medium px-4 rounded-full 
+            flex items-center justify-center cursor-pointer whitespace-nowrap" onClick={handleTask}>
+            + New Task
+          </div>
         </div>
-        <div className="bg-violet-600 text-white text-sm font-medium px-4 rounded-full 
-          flex items-center justify-center cursor-pointer whitespace-nowrap" onClick={handleTask}>
-          + New Task
-        </div>
-      </div>
+      )}
     </div>
   )
 }

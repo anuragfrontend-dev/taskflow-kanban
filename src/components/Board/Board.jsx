@@ -6,13 +6,11 @@ import { getData, deleteTask, updateTask, clearTasks, reorderTask } from '../../
 import { DndContext, closestCenter, PointerSensor,TouchSensor, useSensor, useSensors } from '@dnd-kit/core'
 import { useDispatch, useSelector } from 'react-redux'
 
-export function Board() {
+export function Board({isDark,setIsDark}) {
   const [search,setSearch]=useState('');
   const [priority,setPriority]=useState('ALL');
   const [sortBy,setSortBy]=useState('ALL');
-  const [isDark,setIsDark]=useState(()=>{
-    return localStorage.getItem('theme')==='dark';
-  });
+  
   const [lastUpdated,setLastUpdated]=useState(()=>{
     const saved = localStorage.getItem('boardLastUpdated');
     return saved ? new Date(saved) : new Date();
@@ -110,11 +108,6 @@ export function Board() {
     }
   }
 
-  useEffect(()=>{
-    localStorage.setItem('theme',isDark? 'dark':'light');
-  },[isDark])
- 
-
   const todo=tasks.filter((task)=>(task.status==='todo'));
   const inProgress=tasks.filter((task)=>(task.status==='inprogress'));
   const done=tasks.filter((task)=>(task.status==='done'));
@@ -125,6 +118,8 @@ export function Board() {
       setSearch={setSearch} 
       isDark={isDark}
       setLastUpdated={setLastUpdated}
+      showSearch={true}
+      showNewTask={true}
     />
     <div className={`pt-32 md:pt-15 w-full min-h-screen px-6 md:px-12 py-4 ${isDark ? 'bg-[#09090B]':'bg-gray-200'}`}>
       <BoardHeader 
